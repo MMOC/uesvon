@@ -160,6 +160,8 @@ void SVONPathFinder::BuildPath(TMap<SVONLink, SVONLink>& aCameFrom, SVONLink aCu
 	FVector pos;
 
 	TArray<FVector> points;
+	float CosValue = 0.f;
+ 	float NextCosValue = 0.f;
 
 	if (!oPath || !oPath->IsValid())
 		return;
@@ -182,6 +184,19 @@ void SVONPathFinder::BuildPath(TMap<SVONLink, SVONLink>& aCameFrom, SVONLink aCu
 
 	for (int i = points.Num() - 1; i >= 0; i--)
 	{
+		//Add Cosine Similarity
+		CosValue = (points[i].X*aTargetPos.X + points[i].Y*aTargetPos.Y) / (FMath::Sqrt(points[i].X*points[i].X + aTargetPos.X*aTargetPos.X)*FMath::Sqrt(points[i].Y*points[i].Y + aTargetPos.Y*aTargetPos.Y));
+
+		if (i != 0)
+		{
+			NextCosValue = (points[i - 1].X*aTargetPos.X + points[i - 1].Y*aTargetPos.Y) / (FMath::Sqrt(points[i - 1].X*points[i - 1].X + aTargetPos.X*aTargetPos.X)*FMath::Sqrt(points[i - 1].Y*points[i - 1].Y + aTargetPos.Y*aTargetPos.Y));
+		}
+
+		if (CosValue > -0.5 && CosValue < 0.5 && CosValue != 0 && NextCosValue > -0.5 && NextCosValue < 0.5 && NextCosValue != 0)
+		{
+			i--;
+			continue;
+		}
 		oPath->Get()->GetPathPoints().Add(points[i]);
 	}
 	
